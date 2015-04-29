@@ -70,14 +70,16 @@ describe( '-- backbone.whenthen --', function(){
                 beforeEach( function(){
                     root = root.when( 'test' );
                 } );
+                it( 'should throw if first argument is set, but not an event dispatcher', function(){
+                    expect( function(){
+                        root.then( {} );
+                    } ).to.throw( /compatible/ );
+                } );
                 it( 'should throw for anything else but (arrays of) functions or strings', function(){
                     var f = function(){
                     };
                     expect( function(){
                         root.then();
-                    } ).to.throw( /string|function/ );
-                    expect( function(){
-                        root.then( {} );
                     } ).to.throw( /string|function/ );
                     expect( function(){
                         root.then( 9 );
@@ -113,9 +115,9 @@ describe( '-- backbone.whenthen --', function(){
             } );
             it( 'should throw upon reuse', function(){
                 root.destroy();
-                expect(function(){
+                expect( function(){
                     root.when();
-                } ).to.throw(/destroyed/);
+                } ).to.throw( /destroyed/ );
             } );
         } );
     } );
@@ -149,6 +151,10 @@ describe( '-- backbone.whenthen --', function(){
                     dispatcher.trigger( 'test:foo' );
                     expect( spy.callCount ).to.equal( 0 );
                 } );
+                it( 'should pass all parameters to the callback', function(){
+                    dispatcher.trigger( 'test', 'foo', 'bar' );
+                    expect( spy.calledWithExactly( 'foo', 'bar' ) ).to.be.true();
+                } );
             } );
             describe( 'registered to a single `event`', function(){
                 beforeEach( function(){
@@ -169,6 +175,10 @@ describe( '-- backbone.whenthen --', function(){
                     dispatcher.trigger( 'test:foo' );
                     expect( spy.callCount ).to.equal( 0 );
                 } );
+                it( 'should pass all parameters to the callback', function(){
+                    dispatcher.trigger( 'test', 'foo', 'bar' );
+                    expect( spy.calledWithExactly( 'foo', 'bar' ) ).to.be.true();
+                } );
             } );
             describe( 'registered to multiple `callback`s', function(){
                 beforeEach( function(){
@@ -187,6 +197,12 @@ describe( '-- backbone.whenthen --', function(){
                 it( 'should not execute the callback for other events', function(){
                     dispatcher.trigger( 'test:foo' );
                     expect( spy.callCount ).to.equal( 0 );
+                } );
+                it( 'should pass all parameters to all callbacks', function(){
+                    dispatcher.trigger( 'test', 'foo', 'bar' );
+                    expect( spy.args[ 0 ] ).to.eql( [ 'foo', 'bar' ] );
+                    expect( spy.args[ 1 ] ).to.eql( [ 'foo', 'bar' ] );
+                    expect( spy.args[ 2 ] ).to.eql( [ 'foo', 'bar' ] );
                 } );
             } );
         } );
@@ -229,6 +245,11 @@ describe( '-- backbone.whenthen --', function(){
                     dispatcher.trigger( 'test:b' );
                     expect( spy.callCount ).to.equal( 1 );
                 } );
+                it( 'should _not_ pass any parameters to the callback', function(){
+                    dispatcher.trigger( 'test:a', 'foo' );
+                    dispatcher.trigger( 'test:b', 'bar' );
+                    expect( spy.calledWithExactly() ).to.be.true();
+                } );
             } );
             describe( 'registered to multiple `callback`s', function(){
                 beforeEach( function(){
@@ -246,6 +267,22 @@ describe( '-- backbone.whenthen --', function(){
                     dispatcher.trigger( 'test:b' );
                     expect( spy.callCount ).to.equal( 6 );
                 } );
+            } );
+        } );
+        describe( 'using a `context` parameter', function(){
+            var predicate;
+            var spy;
+            var other;
+            beforeEach( function(){
+                predicate = root.when( 'test' );
+                spy = sinon.spy();
+                other = _.extend( {}, Backbone.Events );
+                other.on( 'relayed', spy );
+                predicate.then( other, 'relayed' );
+            } );
+            it( 'should replace it as dispatcher for `then` events', function(){
+                dispatcher.trigger( 'test' );
+                expect( spy.callCount ).to.equal( 1 );
             } );
         } );
     } );

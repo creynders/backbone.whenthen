@@ -2,6 +2,13 @@
 
 var _ = require( 'underscore' );
 
+function verifyDispatcher( subject ){
+    if( !subject || !subject.on || !subject.trigger || !subject.off ){
+        throw new Error( 'subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events' );
+    }
+    return subject;
+}
+
 function Builder( root,
                   puppet,
                   events ){
@@ -11,15 +18,15 @@ function Builder( root,
 }
 
 _.extend( Builder.prototype, {
-    _original             : undefined,
-    _callbacks            : [],
-    _current              : [],
-    _root                 : undefined,
-    _puppet               : undefined,
-    _unregistered         : true,
-    _exec                 : function(){
+    _original : undefined,
+    _callbacks : [],
+    _current : [],
+    _root : undefined,
+    _puppet : undefined,
+    _unregistered : true,
+    _exec : function( args ){
         _.each( this._callbacks, function( callback ){
-            callback.call();
+            callback.apply( null, args );
         } );
         this._reset();
     },
@@ -29,48 +36,64 @@ _.extend( Builder.prototype, {
             this._unregistered = false;
         }
     },
-    _reset                : function(){
+    _reset : function(){
         _.each( this._original, function( dependency ){
             this._puppet.once( dependency, function(){
-                this._handle( dependency );
+                this._handle( dependency, _.toArray( arguments ) );
             }, this );
         }, this );
         this._current = _.clone( this._original );
     },
-    _handle               : function( event ){
+    _handle : function( event,
+                        args ){
         this._current.splice( this._current.indexOf( event ), 1 );
         if( !this._current.length ){
-            this._exec();
+            this._exec( args );
         }
     },
     _destroy : function(){
-        this._puppet.off(null, null, this);
+        this._puppet.off( null, null, this );
         this._current = undefined;
         this._original = undefined;
         this._callbacks = undefined;
         this.then = function(){
-            throw new Error('`then` instance destroyed');
+            throw new Error( '`then` instance destroyed' );
         }
     },
-    then                  : function(){
-        if(arguments.length <= 0){
-            throw new TypeError('`then` requires at least one string or function');
-        }
+    then : function(){
         var mixed = _.flatten( _.toArray( arguments ) );
+        var puppet = ( _.isObject( mixed[ 0 ] ) && !_.isFunction( mixed[ 0 ] ))
+            ? verifyDispatcher( mixed.shift() )
+            : this._puppet;
+        if( mixed.length <= 0 ){
+            throw new TypeError( '`then` requires at least one string or function' );
+        }
         this._registerDependencies(); // lazy registration, to avoid extra strain due to unfinished configuration
-        var puppet = this._puppet;
-        var callbacks = _.map( mixed, function( subject ){
+        var passArgs = (this._original.length === 1);
+        var callbacks = _.map( mixed, function( eventOrCallback ){
             var callback;
-            if( _.isString( subject ) ){
-                callback = function(){
-                    puppet.trigger( subject );
-                };
-            } else if( !_.isFunction( subject ) ){
-                throw new TypeError('`then` only accepts (arrays of) strings or functions');
-            }else{
-                callback = subject;
+            var context;
+            var event;
+            if( _.isString( eventOrCallback ) ){
+                callback = puppet.trigger;
+                context = puppet;
+                event = eventOrCallback;
+            } else if( !_.isFunction( eventOrCallback ) ){
+                throw new TypeError( '`then` only accepts (arrays of) strings or functions' );
+            } else {
+                callback = eventOrCallback;
+                context = null;
             }
-            return callback;
+            if( passArgs ){
+                return function(){
+                    var args = _.toArray( arguments );
+                    event && args.unshift( event );
+                    callback.apply( context, args );
+                };
+            }
+            return function(){
+                callback.call( context );
+            }
         } );
         this._callbacks = this._callbacks.concat( callbacks );
         return {
@@ -80,14 +103,12 @@ _.extend( Builder.prototype, {
 } );
 
 module.exports = function( puppet ){
-    if( !puppet || !puppet.on || !puppet.trigger || !puppet.off ){
-        throw new Error( 'subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events' );
-    }
+    verifyDispatcher( puppet );
     var root = {
         _builders : []
     };
     root.when = function(){
-        if(arguments.length<=0){
+        if( arguments.length <= 0 ){
             throw new TypeError( '`when` requires at least one string' );
         }
         var events = _.flatten( _.toArray( arguments ) );
@@ -97,16 +118,16 @@ module.exports = function( puppet ){
             }
         } );
         var builder = new Builder( root, puppet, events );
-        this._builders.push(builder);
+        this._builders.push( builder );
         return builder;
     };
     root.destroy = function(){
-        _.each(this._builders, function(builder){
+        _.each( this._builders, function( builder ){
             builder._destroy();
-        });
+        } );
         this._builders = undefined;
         this.destroy = this.when = function(){
-            throw new Error('`when` instance destroyed');
+            throw new Error( '`when` instance destroyed' );
         }
     };
     return root;
