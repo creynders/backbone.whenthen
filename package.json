@@ -1,0 +1,20 @@
+{
+  "name": "backbone.whenthen",
+  "version": "1.0.0",
+  "description": "When <events> then <execute> (for backbone)",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests.js"
+  },
+  "author": "Camille Reynders",
+  "license": "MIT",
+  "devDependencies": {
+    "backbone": "^1.1.2",
+    "mocha": "^2.2.4",
+    "must": "^0.12.0",
+    "sinon": "^1.14.1"
+  },
+  "dependencies": {
+    "underscore": "^1.8.3"
+  }
+}
