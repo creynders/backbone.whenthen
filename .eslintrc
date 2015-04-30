@@ -1,16 +1,24 @@
 {
-	"env": {
-		"browser": true,
-		"node": true
-	},
-	"rules": {
-		"curly": [2, "multi-line"],
-		"no-shadow": 1,
-		"no-trailing-spaces": 1,
-		"no-underscore-dangle": 0,
-		"no-unused-expressions": 0,
-		"quotes": [2, "single", "avoid-escape"],
-		"semi": 2,
-		"strict": 1
-	}
+    "env": {
+        "browser": true,
+        "node": true,
+        "amd": true
+    },
+    "rules": {
+        "curly": [
+            2,
+            "multi-line"
+        ],
+        "no-shadow": 1,
+        "no-trailing-spaces": 1,
+        "no-underscore-dangle": 0,
+        "no-unused-expressions": 0,
+        "quotes": [
+            2,
+            "single",
+            "avoid-escape"
+        ],
+        "semi": 2,
+        "strict": 1
+    }
 }
