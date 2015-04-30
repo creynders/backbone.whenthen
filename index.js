@@ -1,6 +1,7 @@
 /*eslint-disable strict*/
 (function( scope,
            factory ){
+    /* istanbul ignore next */
     // CommonJS
     if( typeof exports === 'object' ){
         module.exports = factory( require( 'underscore' ) );

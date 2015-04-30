@@ -110,9 +110,13 @@ module.exports = function(subject, name){
                     expect( spy.callCount ).to.equal( 0 );
                 } );
                 it( 'should throw upon reuse', function(){
+                    var predicate = root.when('test');
                     root.destroy();
                     expect( function(){
-                        root.when();
+                        root.when('test');
+                    } ).to.throw( /destroyed/ );
+                    expect( function(){
+                        predicate.then('foo');
                     } ).to.throw( /destroyed/ );
                 } );
             } );
