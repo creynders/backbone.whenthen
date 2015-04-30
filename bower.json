@@ -1,0 +1,30 @@
+{
+  "name": "backbone.whenthen",
+  "main": "index.js",
+  "authors": [
+    "Camille Reynders <info@creynders.be>"
+  ],
+  "description": "When <events> then <execute>",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "whenthen",
+    "async",
+    "backbone",
+    "marionette",
+    "events",
+    "callbacks"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/creynders/backbone.whenthen",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,19 +1,32 @@
 {
   "name": "backbone.whenthen",
   "version": "1.0.0",
-  "description": "When <events> then <execute> (for backbone)",
+  "description": "When <events> then <execute>",
   "main": "index.js",
+  "files": [
+    "index.js"
+  ],
   "scripts": {
-    "lint": "eslint index.js tests",
+    "lint": "eslint index.js tests && echo 'Eslint: no errors or warnings'",
     "qa": "npm run lint && npm run test-all",
     "test": "mocha tests/source.test.js",
     "test-all": "mocha tests/all.test.js --reporter dot",
+    "cover": "istanbul cover _mocha tests/source.test.js",
     "build": "npm run lint && uglifyjs index.js -o dist/backbone.whenthen.js --beautify && uglifyjs index.js -o dist/backbone.whenthen.min.js -cm && npm run test-all;"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creynders/backbone.whenthen"
+  },
+  "homepage": "https://github.com/creynders/backbone.whenthen",
+  "bugs": {
+    "url": "https://github.com/creynders/backbone.whenthen/issues"
   },
   "author": "Camille Reynders",
   "license": "MIT",
   "devDependencies": {
     "backbone": "^1.1.2",
+    "istanbul": "^0.3.13",
     "mocha": "^2.2.4",
     "must": "^0.12.0",
     "sinon": "^1.14.1",
