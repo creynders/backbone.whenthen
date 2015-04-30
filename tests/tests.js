@@ -40,7 +40,7 @@ module.exports = function(subject, name){
                 expect( root.when ).to.be.a.function();
             } );
 
-            describe( '#when', function(){
+            describe( '.when()', function(){
                 it( 'should throw an error for anything else but (arrays of) strings', function(){
                     expect( function(){
                         root.when();
@@ -67,7 +67,7 @@ module.exports = function(subject, name){
                         root.when( 'string', [ 'string', 'string' ] );
                     } ).not.to.throw();
                 } );
-                describe( '.then', function(){
+                describe( '.then()', function(){
                     beforeEach( function(){
                         root = root.when( 'test' );
                     } );
@@ -96,12 +96,19 @@ module.exports = function(subject, name){
                             root.then( f, [ 'string', f ], 'string' );
                         } ).not.to.throw();
                     } );
-                    it( 'should return an object exposing a `when` function', function(){
-                        expect( root.then( 'string' ).when ).to.be.a.function();
-                    } );
+                    describe('.when()', function(){
+                        it( 'should be a function', function(){
+                            expect( root.then( 'string' ).when ).to.be.a.function();
+                        } );
+                        it('should not throw when used', function(){
+                            expect(function(){
+                               root.then('string' ).when('string')
+                            } ).to.not.throw();
+                        })
+                    });
                 } );
             } );
-            describe( '#destroy', function(){
+            describe( '.destroy()', function(){
                 it( 'should unregister all callbacks', function(){
                     var spy = sinon.spy();
                     root.when( 'test' ).then( spy );
