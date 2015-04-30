@@ -27,7 +27,7 @@ Here we go:
 We're ready to roll!!
 ```
 
-This is especially useful in situations where you have a lot of async processes going on at the same time, or in sequence, and you want to respond to the collective completion of these processes.
+This is especially useful in situations where you have a lot of parallel async processes going on and you want to respond to the collective completion of these processes.
 For instance: complex loading and bootstrapping sequences or bespoke view transitions.
 
 ## installation
@@ -44,7 +44,7 @@ npm install backbone.whenthen
 
 ## dependencies
 
-* Despite the name `backbone.whenthen` does _NOT_ have a hard dependency on `Backbone`, however it does expect `Backbone.Events`-compatible instances to control.
+* Despite the name, `backbone.whenthen` does _NOT_ have a hard dependency on `Backbone`, however it does expect `Backbone.Events`-compatible instances to control.
 * `underscore` _is_ **required** shizzle though. 
 
 ## usage
@@ -108,17 +108,30 @@ command(dispatcher)
 	.then('event:z', ['event:y', fooFn], barFn);
 ```
 
-Once all events registered in `when` have been triggered by `dispatcher`, all items registered with `then` will be either be executed (functions) or triggered (strings) in `dispatcher`. I.e. in the above example `dispatcher` will trigger `event:z`, `event:y` and call `fooFn`, `barFn` (synchronously and in order).
+Once all events registered in `when` have been triggered by `dispatcher`, all items registered with `then` will be either be executed (functions) or triggered (strings) in `dispatcher`. 
+I.e. in the above example `dispatcher` will trigger `event:z`, `event:y` and call `fooFn`, `barFn` (synchronously and in order).
 
 Example:
 
 ```js
 command(app.vent)
 	.when('loaded:images', 'loaded:locales')
-	.then('app:show:ui');
+	.then('app:show:ui'); // `app.vent` triggers 'app:show:ui'
 ```
 
 It doesn't matter in which order the `when` events are triggered, `then` will always wait until all of them have been triggered.
+
+#### `.when().have({Object}).then()`
+
+If you want to have a difference Backbone.Events instance triggering the completion event(s), you can use `have` in between:
+
+```js
+command(loader)
+    .when('something:ready', 'something:else:ready')
+    .have(app.vent).then('app:ready');
+```
+
+In this case, once `fsm` has triggered `'something:ready'` and `'something:else:ready'` the `app.vent` dispatcher will trigger `'app:ready'`.
 
 #### when time becomes a loop
 
@@ -126,22 +139,55 @@ It doesn't matter in which order the `when` events are triggered, `then` will al
 
 ```js
 command(app.vent)
-	.when('foo')
-	.then(fooFn)
-	.when('bar')
-	.then(barFn)
+	.when('foo').then(fooFn)
+	.when('bar').then(barFn)
 // you catch the drift
+```
+
+`have`'s apply strictly to the `then` coming right after it, e.g.:
+
+```js
+command(app.vent)
+	.when('foo').have(someOther).then('bar')
+	.when('baz').then('qux'); // `app.vent` triggers `'qux'`
 ```
 
 ## Event relaying
 
-Obviously `backbone.whenthen` can be used as a simple event translator/relayer, for translating module events for instance:
+Obviously `backbone.whenthen` can be used as a simple event translator/relayer, for translating module events for instance.
+If a single event is registered with `when` automatically all parameters passed when triggering said event will be passed to the `then` events/callbacks.
 
 ```js
 command(app.vent)
 	.when('user:selection:completed')
-	.then('account:user:selected');
+	.have(account.vent).then('user:selected');
 //yeah, yeah I know, not the best of examples
+
+account.vent.on('user:selected', function(user){
+    console.log(user);// outputs: {name:"Camille Reynders"}
+});
+app.vent.trigger('user:selection:completed', {
+    name: 'Camille Reynders'
+});
+```
+
+#### `.destroy()`
+
+If you need to clean up you can `destroy`:
+
+```js
+var relayer = command.loader();
+//relayer.when(...).then(...);
+// later on:
+relayer.destroy();
+```
+
+`destroy` unregisters all callbacks and events, and cleans up all objects.
+If you try to use a destroyed instance it will throw errors:
+
+```
+relayer.destroy();
+relayer.when('foo').then('bar'); // Error: `when` instance destroyed
 ```
 
 ## License
