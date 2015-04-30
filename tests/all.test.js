@@ -1,4 +1,4 @@
-require('source.test');
+require('./source.test');
 var tests = require('./tests');
-tests(require( '../dist/backbone.whenthen' ), "beautified");
-tests(require( '../dist/backbone.whenthen.min' ), "minified");
+tests(require( '../dist/backbone.whenthen' ), 'beautified');
+tests(require( '../dist/backbone.whenthen.min' ), 'minified');
