@@ -131,7 +131,7 @@
         };
         root.when = function(){
             if( arguments.length <= 0 ){
-                throw new TypeError( '`when` requires at least one string' );
+                throw new TypeError( '`when` requires at least one argument' );
             }
             var events = _.flatten( _.toArray( arguments ) );
             _.each( events, function( event ){

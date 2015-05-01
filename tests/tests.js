@@ -42,10 +42,12 @@ module.exports = function( subject,
             } );
 
             describe( '.when()', function(){
-                it( 'should throw an error for anything else but (arrays of) strings', function(){
+                it( 'should throw an error if no arguments were provided', function(){
                     expect( function(){
                         root.when();
-                    } ).to.throw( /string/ );
+                    } ).to.throw( /argument/ );
+                });
+                it( 'should throw an error for anything else but (arrays of) strings', function(){
                     expect( function(){
                         root.when( {} );
                     } ).to.throw( /string/ );
