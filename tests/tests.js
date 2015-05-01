@@ -21,7 +21,7 @@ module.exports = function( subject,
             it( 'should be a function', function(){
                 expect( subject ).to.be.a.function();
             } );
-        } );
+        } );// module
 
         var dispatcher;
         var root;
@@ -108,7 +108,7 @@ module.exports = function( subject,
                                 root.then( 'string' ).when( 'string' );
                             } ).not.to.throw();
                         } );
-                    } );
+                    } );// when().then().when()
                     describe( '.then()', function(){
                         it( 'should be a function', function(){
                             expect( root.then( 'string' ).then ).to.be.a.function();
@@ -118,9 +118,9 @@ module.exports = function( subject,
                                 root.then( 'string' ).then( 'string' );
                             } ).not.to.throw();
                         } );
-                    } );
-                } );
-            } );
+                    } );// when().then().then()
+                } );// when().then()
+            } );// when()
             describe( '.destroy()', function(){
                 it( 'should unregister all callbacks', function(){
                     var spy = sinon.spy();
@@ -139,7 +139,7 @@ module.exports = function( subject,
                         predicate.then( 'foo' );
                     } ).to.throw( /destroyed/ );
                 } );
-            } );
+            } );// destroy()
         } );
         describe( 'functionality:', function(){
             describe( 'a single event dependency', function(){
