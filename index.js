@@ -20,7 +20,7 @@
 
     function verifyDispatcher( subject ){
         if( !subject || !subject.on || !subject.trigger || !subject.off ){
-            throw new Error( 'subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events' );
+            throw new TypeError( 'subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events' );
         }
         return subject;
     }
