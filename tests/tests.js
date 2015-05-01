@@ -46,7 +46,7 @@ module.exports = function( subject,
                     expect( function(){
                         root.when();
                     } ).to.throw( /argument/ );
-                });
+                } );
                 it( 'should throw an error for anything else but (arrays of) strings', function(){
                     expect( function(){
                         root.when( {} );
@@ -106,6 +106,16 @@ module.exports = function( subject,
                         it( 'should not throw when used', function(){
                             expect( function(){
                                 root.then( 'string' ).when( 'string' );
+                            } ).not.to.throw();
+                        } );
+                    } );
+                    describe( '.then()', function(){
+                        it( 'should be a function', function(){
+                            expect( root.then( 'string' ).then ).to.be.a.function();
+                        } );
+                        it( 'should not throw when used', function(){
+                            expect( function(){
+                                root.then( 'string' ).then( 'string' );
                             } ).not.to.throw();
                         } );
                     } );
