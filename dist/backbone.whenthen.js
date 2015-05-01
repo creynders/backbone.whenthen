@@ -102,7 +102,7 @@
                     });
                     this._callbacks = this._callbacks.concat(callbacks);
                     return {
-                        when: this._root.when
+                        when: this._root.when.bind(this._root)
                     };
                 }.bind(self)
             };
