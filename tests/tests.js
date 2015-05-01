@@ -2,7 +2,8 @@
 
 /* eslint-env mocha */
 
-module.exports = function(subject, name){
+module.exports = function( subject,
+                           name ){
 
     var _ = require( 'underscore' );
     var expect = require( 'must' );
@@ -96,16 +97,16 @@ module.exports = function(subject, name){
                             root.then( f, [ 'string', f ], 'string' );
                         } ).not.to.throw();
                     } );
-                    describe('.when()', function(){
+                    describe( '.when()', function(){
                         it( 'should be a function', function(){
                             expect( root.then( 'string' ).when ).to.be.a.function();
                         } );
-                        it('should not throw when used', function(){
-                            expect(function(){
-                               root.then('string' ).when('string')
+                        it( 'should not throw when used', function(){
+                            expect( function(){
+                                root.then( 'string' ).when( 'string' );
                             } ).to.not.throw();
-                        })
-                    });
+                        } );
+                    } );
                 } );
             } );
             describe( '.destroy()', function(){
@@ -117,13 +118,13 @@ module.exports = function(subject, name){
                     expect( spy.callCount ).to.equal( 0 );
                 } );
                 it( 'should throw upon reuse', function(){
-                    var predicate = root.when('test');
+                    var predicate = root.when( 'test' );
                     root.destroy();
                     expect( function(){
-                        root.when('test');
+                        root.when( 'test' );
                     } ).to.throw( /destroyed/ );
                     expect( function(){
-                        predicate.then('foo');
+                        predicate.then( 'foo' );
                     } ).to.throw( /destroyed/ );
                 } );
             } );
