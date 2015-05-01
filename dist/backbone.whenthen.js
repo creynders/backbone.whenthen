@@ -13,7 +13,7 @@
     "use strict";
     function verifyDispatcher(subject) {
         if (!subject || !subject.on || !subject.trigger || !subject.off) {
-            throw new Error("subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events");
+            throw new TypeError("subject must have `on`, `off` and `trigger` methods, compatible with Backbone.Events");
         }
         return subject;
     }
@@ -102,7 +102,8 @@
                     });
                     this._callbacks = this._callbacks.concat(callbacks);
                     return {
-                        when: this._root.when.bind(this._root)
+                        when: this._root.when.bind(this._root),
+                        then: this.then.bind(this)
                     };
                 }.bind(self)
             };
@@ -118,7 +119,7 @@
         };
         root.when = function() {
             if (arguments.length <= 0) {
-                throw new TypeError("`when` requires at least one string");
+                throw new TypeError("`when` requires at least one argument");
             }
             var events = _.flatten(_.toArray(arguments));
             _.each(events, function(event) {
