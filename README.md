@@ -13,8 +13,8 @@ app.vent.on('rolling', function(){
 	console.log('Here we go:');
 });
 
-var command = require('backbone.whenthen');
-command(app.vent)
+var instruct = require('backbone.whenthen');
+instruct(app.vent)
     .when('event1', 'event2', 'event3')
     .then('rolling', function(){
         console.log("We're ready to roll!!");
@@ -22,7 +22,7 @@ command(app.vent)
 
 app.vent.trigger('event1'); // nothing happens
 app.vent.trigger('event2'); // nothing happens
-app.vent.trigger('event3'); 
+app.vent.trigger('event3'); // this will:
 ```
 ```sh
 // output to console: 
@@ -56,14 +56,14 @@ npm install backbone.whenthen
 
 ```js
 // AMD
-define([ "backbone.whenthen" ], function(command){
-    //use `command` as in the examples
+define([ "backbone.whenthen" ], function(instruct){
+    //use `instruct` as in the examples
 });
 ```
 ```js
 // CommonJS
-var command = require('backbone.whenthen');
-//use `command` as in the examples
+var instruct = require('backbone.whenthen');
+//use `instruct` as in the examples
 ```
 ```html
 <!-- old skool, definitely NOT recommended -->
@@ -73,11 +73,11 @@ var command = require('backbone.whenthen');
 ```
 ```js
 //old skool, continued
-var command = Backbone.WhenThen; // it's attached to Backbone
+var instruct = Backbone.WhenThen; // it's attached to Backbone
 //or in case you don't load Backbone:
-var command = WhenThen; // it's a global object... *shudders*
+var instruct = WhenThen; // it's a global object... *shudders*
 
-//use `command` as in the examples
+//use `instruct` as in the examples
 ```
 
 ## API
@@ -87,9 +87,9 @@ The `backbone.whenthen` module exposes a function, which accepts a Backbone.Even
 ```js
 var _ = require('underscore');
 var Backbone = require('backbone');
-var command = require('backbone.whenthen');
+var instruct = require('backbone.whenthen');
 var dispatcher = _.extend({}, Backbone.Events); // obviously any Backbone.Events dispatcher will do: Backbone.Model et cetera.
-command(dispatcher);
+instruct(dispatcher);
 ```
 
 #### `.when({...String|...String[]})`
@@ -97,7 +97,7 @@ command(dispatcher);
 You can pass as many (arrays of) event strings to `when` as you want, they'll be normalized:
 
 ```js
-command(dispatcher)
+instruct(dispatcher)
 	.when('event:a', ['event:b', 'event:c'], 'event:d');
 ```
 
@@ -106,7 +106,7 @@ command(dispatcher)
 `then` accepts any number (and mixture) of (arrays of) strings and/or functions:
 
 ```js
-command(dispatcher)
+instruct(dispatcher)
 	.when('event:a', ['event:b', 'event:c'], 'event:d')
 	.then('event:z', ['event:y', fooFn], barFn);
 ```
@@ -117,7 +117,7 @@ I.e. in the above example `dispatcher` will trigger `event:z`, `event:y` and cal
 Example:
 
 ```js
-command(app.vent)
+instruct(app.vent)
 	.when('loaded:images', 'loaded:locales')
 	.then('app:show:ui'); // `app.vent` triggers 'app:show:ui'
 ```
@@ -129,19 +129,19 @@ It doesn't matter in which order the `when` events are triggered, `then` will al
 If you want to have a difference Backbone.Events instance triggering the completion event(s), you can use `have` in between:
 
 ```js
-command(loader)
+instruct(loader)
     .when('something:ready', 'something:else:ready')
     .have(app.vent).then('app:ready');
 ```
 
-In this case, once `fsm` has triggered `'something:ready'` and `'something:else:ready'` the `app.vent` dispatcher will trigger `'app:ready'`.
+In this case, once `loader` has triggered `'something:ready'` and `'something:else:ready'` the `app.vent` dispatcher will trigger `'app:ready'`.
 
 #### when time becomes a loop
 
 `then` exposes a new `when`. You can go on ad infinitum.
 
 ```js
-command(app.vent)
+instruct(app.vent)
 	.when('foo').then(fooFn)
 	.when('bar').then(barFn)
 // you catch the drift
@@ -150,7 +150,7 @@ command(app.vent)
 `have`'s apply strictly to the `then` coming right after it, e.g.:
 
 ```js
-command(app.vent)
+instruct(app.vent)
 	.when('foo').have(someOther).then('bar')
 	.when('baz').then('qux'); // `app.vent` triggers `'qux'`
 ```
@@ -161,7 +161,7 @@ Obviously `backbone.whenthen` can be used as a simple event translator/relayer, 
 If a single event is registered with `when` automatically all parameters passed when triggering said event will be passed to the `then` events/callbacks.
 
 ```js
-command(app.vent)
+instruct(app.vent)
 	.when('user:selection:completed')
 	.have(account.vent).then('user:selected');
 //yeah, yeah I know, not the best of examples
@@ -179,7 +179,7 @@ app.vent.trigger('user:selection:completed', {
 If you need to clean up you can `destroy`:
 
 ```js
-var relayer = command.loader();
+var relayer = instruct(loader);
 //relayer.when(...).then(...);
 // later on:
 relayer.destroy();
