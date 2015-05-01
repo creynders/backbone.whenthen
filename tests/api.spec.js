@@ -10,7 +10,7 @@ module.exports = function( subject,
     var sinon = require( 'sinon' );
     var Backbone = require( 'backbone' );
 
-    describe( '-- backbone.whenthen (' + name + ') --', function(){
+    describe( '-- API (' + name + ') --', function(){
         describe( 'spec file', function(){
             it( 'should be found', function(){
                 expect( true ).to.be.true();
@@ -31,7 +31,7 @@ module.exports = function( subject,
             root = subject( dispatcher );
         } );
 
-        describe( 'API', function(){
+        describe( '()', function(){
             it( 'should throw an error when a non-compatible events instance is passed', function(){
                 expect( function(){
                     subject();
@@ -120,6 +120,30 @@ module.exports = function( subject,
                         } );
                     } );// when().then().then()
                 } );// when().then()
+                describe( '.have()', function(){
+                    var predicate;
+                    var spy;
+                    var other;
+                    beforeEach( function(){
+                        predicate = root.when( 'test' );
+                        spy = sinon.spy();
+                        other = _.extend( {}, Backbone.Events );
+                        other.on( 'relayed', spy );
+                    } );
+                    it( 'should be a function', function(){
+                        expect( predicate.have ).to.be.a.function();
+                    } );
+                    it( 'should throw if it doesn\'t receice a Backbone.Events compatible dispatcher', function(){
+                        expect( function(){
+                            predicate.have();
+                        } ).to.throw( /compatible/ );
+                    } );
+                    it( 'should replace it as dispatcher for `then` events', function(){
+                        predicate.have( other ).then( 'relayed' );
+                        dispatcher.trigger( 'test' );
+                        expect( spy.callCount ).to.equal( 1 );
+                    } );
+                } );
             } );// when()
             describe( '.destroy()', function(){
                 it( 'should unregister all callbacks', function(){
@@ -140,167 +164,6 @@ module.exports = function( subject,
                     } ).to.throw( /destroyed/ );
                 } );
             } );// destroy()
-        } );
-        describe( 'functionality:', function(){
-            describe( 'a single event dependency', function(){
-                var predicate;
-                var spy;
-                beforeEach( function(){
-                    predicate = root.when( 'test' );
-                    spy = sinon.spy();
-                } );
-                describe( 'registered to a single `callback', function(){
-                    beforeEach( function(){
-                        predicate.then( spy );
-                    } );
-                    it( 'should execute the callback after triggering the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 1 );
-                    } );
-                    it( 'should execute the callback with each trigger of the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 3 );
-                    } );
-                    it( 'should not execute the callback for other events', function(){
-                        dispatcher.trigger( 'test:foo' );
-                        expect( spy.callCount ).to.equal( 0 );
-                    } );
-                    it( 'should pass all parameters to the callback', function(){
-                        dispatcher.trigger( 'test', 'foo', 'bar' );
-                        expect( spy.calledWithExactly( 'foo', 'bar' ) ).to.be.true();
-                    } );
-                } );
-                describe( 'registered to a single `event`', function(){
-                    beforeEach( function(){
-                        dispatcher.on( 'event', spy );
-                        predicate.then( 'event' );
-                    } );
-                    it( 'should trigger `event` after triggering the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 1 );
-                    } );
-                    it( 'should trigger `event` with each triggering of the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 3 );
-                    } );
-                    it( 'should not trigger `event` for other events', function(){
-                        dispatcher.trigger( 'test:foo' );
-                        expect( spy.callCount ).to.equal( 0 );
-                    } );
-                    it( 'should pass all parameters to the callback', function(){
-                        dispatcher.trigger( 'test', 'foo', 'bar' );
-                        expect( spy.calledWithExactly( 'foo', 'bar' ) ).to.be.true();
-                    } );
-                } );
-                describe( 'registered to multiple `callback`s', function(){
-                    beforeEach( function(){
-                        predicate.then( spy, spy, spy );
-                    } );
-                    it( 'should execute the callbacsk after triggering the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 3 );
-                    } );
-                    it( 'should execute the callback with each triggering of the dependency event', function(){
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        dispatcher.trigger( 'test' );
-                        expect( spy.callCount ).to.equal( 9 );
-                    } );
-                    it( 'should not execute the callback for other events', function(){
-                        dispatcher.trigger( 'test:foo' );
-                        expect( spy.callCount ).to.equal( 0 );
-                    } );
-                    it( 'should pass all parameters to all callbacks', function(){
-                        dispatcher.trigger( 'test', 'foo', 'bar' );
-                        expect( spy.args[ 0 ] ).to.eql( [ 'foo', 'bar' ] );
-                        expect( spy.args[ 1 ] ).to.eql( [ 'foo', 'bar' ] );
-                        expect( spy.args[ 2 ] ).to.eql( [ 'foo', 'bar' ] );
-                    } );
-                } );
-            } );
-            describe( 'multiple event dependencies', function(){
-                var predicate;
-                var spy;
-                beforeEach( function(){
-                    predicate = root.when( 'test:a', 'test:b' );
-                    spy = sinon.spy();
-                } );
-                describe( 'registered to a single `callback', function(){
-                    beforeEach( function(){
-                        predicate.then( spy );
-                    } );
-                    it( 'should _not_ execute the callback after triggering one of the dependency events', function(){
-                        dispatcher.trigger( 'test:a' );
-                        expect( spy.callCount ).to.equal( 0 );
-                    } );
-                    it( 'should execute the callback after triggering all of the dependency events in order', function(){
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        expect( spy.callCount ).to.equal( 1 );
-                    } );
-                    it( 'should execute the callback after triggering all of the dependency events out of order', function(){
-                        dispatcher.trigger( 'test:b' );
-                        dispatcher.trigger( 'test:a' );
-                        expect( spy.callCount ).to.equal( 1 );
-                    } );
-                    it( 'should execute the callback after each full sequence of triggering the dependency events', function(){
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        expect( spy.callCount ).to.equal( 2 );
-                    } );
-                    it( 'should _not_ execute the callback after an incorrect sequence of triggering the dependency events', function(){
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        dispatcher.trigger( 'test:b' );
-                        expect( spy.callCount ).to.equal( 1 );
-                    } );
-                    it( 'should _not_ pass any parameters to the callback', function(){
-                        dispatcher.trigger( 'test:a', 'foo' );
-                        dispatcher.trigger( 'test:b', 'bar' );
-                        expect( spy.calledWithExactly() ).to.be.true();
-                    } );
-                } );
-                describe( 'registered to multiple `callback`s', function(){
-                    beforeEach( function(){
-                        predicate.then( spy, spy, spy );
-                    } );
-                    it( 'should execute the callbacks after triggering all of the dependency events', function(){
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        expect( spy.callCount ).to.equal( 3 );
-                    } );
-                    it( 'should execute the callback with each full sequence of the dependency events', function(){
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        dispatcher.trigger( 'test:a' );
-                        dispatcher.trigger( 'test:b' );
-                        expect( spy.callCount ).to.equal( 6 );
-                    } );
-                } );
-            } );
-            describe( 'when().have().then()', function(){
-                var predicate;
-                var spy;
-                var other;
-                beforeEach( function(){
-                    predicate = root.when( 'test' );
-                    spy = sinon.spy();
-                    other = _.extend( {}, Backbone.Events );
-                    other.on( 'relayed', spy );
-                    predicate.have( other ).then( 'relayed' );
-                } );
-                it( 'should replace it as dispatcher for `then` events', function(){
-                    dispatcher.trigger( 'test' );
-                    expect( spy.callCount ).to.equal( 1 );
-                } );
-            } );
-        } );
+        } );// API
     } );
 };

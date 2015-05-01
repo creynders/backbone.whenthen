@@ -9,8 +9,8 @@
   "scripts": {
     "lint": "eslint index.js tests && echo 'Eslint: no errors or warnings'",
     "qa": "npm run lint && npm run test-all",
-    "test": "mocha tests/source.test.js",
-    "test-all": "mocha tests/all.test.js --reporter dot",
+    "test": "mocha tests/source.tests.js",
+    "test-all": "mocha tests/all.tests.js --reporter dot",
     "cover": "istanbul cover _mocha tests/source.test.js",
     "build": "npm run lint && uglifyjs index.js -o dist/backbone.whenthen.js --beautify && uglifyjs index.js -o dist/backbone.whenthen.min.js -cm && npm run test-all;"
   },
