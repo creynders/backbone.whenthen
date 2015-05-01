@@ -104,7 +104,7 @@ module.exports = function( subject,
                         it( 'should not throw when used', function(){
                             expect( function(){
                                 root.then( 'string' ).when( 'string' );
-                            } ).to.not.throw();
+                            } ).not.to.throw();
                         } );
                     } );
                 } );
