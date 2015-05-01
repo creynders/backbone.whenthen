@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/creynders/backbone.whenthen.svg)](https://travis-ci.org/creynders/backbone.whenthen)
 [![npm version](https://badge.fury.io/js/backbone.whenthen.svg)](http://npmjs.org/packages/backbone.whenthen)
 
-> when \<events\> then \<execute\>
+> when \<these\> then \<those\>
 
 Honestly, it's easier to show than tell.
 
