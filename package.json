@@ -1,6 +1,6 @@
 {
   "name": "backbone.whenthen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "When <events> then <execute>",
   "main": "index.js",
   "files": [
