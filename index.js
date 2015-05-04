@@ -109,7 +109,9 @@
                             };
                         }
                         return function(){
-                            callback.call( context );
+                            callback.apply( context, (event)
+                                ? [ event ]
+                                : [] );
                         };
                     } );
                     this._callbacks = this._callbacks.concat( callbacks );
